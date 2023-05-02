@@ -4,10 +4,26 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:music_player/constanct/my-text-style.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+import '../controllers/page_manager.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late PageManager _pageManager;
 
   late Size size;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _pageManager = PageManager();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,17 +122,22 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      ProgressBar(
-                        progress: const Duration(milliseconds: 1000),
-                        buffered: const Duration(milliseconds: 2000),
-                        total: const Duration(milliseconds: 5000),
-                        onSeek: (duration) {},
-                        thumbColor: Colors.white,
-                        progressBarColor: Colors.red,
-                        baseBarColor: Colors.grey,
-                        thumbGlowColor: Colors.redAccent.withOpacity(0.25),
-                        timeLabelTextStyle: const TextStyle(fontSize: 15),
-                      ),
+                      ValueListenableBuilder<ProgressBarState>(
+                          valueListenable: _pageManager.progressNotifier,
+                          builder: (context, value, _) {
+                            return ProgressBar(
+                              progress: value.current,
+                              buffered: value.buffrered,
+                              total: value.total,
+                              onSeek: (duration) {},
+                              thumbColor: Colors.white,
+                              progressBarColor: Colors.red,
+                              baseBarColor: Colors.grey,
+                              thumbGlowColor:
+                                  Colors.redAccent.withOpacity(0.25),
+                              timeLabelTextStyle: const TextStyle(fontSize: 15),
+                            );
+                          }),
                       const SizedBox(height: 25),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +153,7 @@ class HomeScreen extends StatelessWidget {
                             size: 35,
                           ),
                           Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                     colors: [
@@ -142,10 +163,32 @@ class HomeScreen extends StatelessWidget {
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter),
                                 borderRadius: BorderRadius.circular(50)),
-                            child: const Icon(
-                              Icons.play_arrow,
-                              color: Colors.white,
-                              size: 40,
+                            child: ValueListenableBuilder<ButtonState>(
+                              valueListenable: _pageManager.buttonNotifier,
+                              builder: (context, ButtonState value, _) {
+                                switch (value) {
+                                  case ButtonState.loading:
+                                    return const CircularProgressIndicator();
+                                  case ButtonState.playing:
+                                    return IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.pause,
+                                        color: Colors.white,
+                                        size: 35,
+                                      ),
+                                    );
+                                  case ButtonState.paused:
+                                    return IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 50,
+                                      ),
+                                    );
+                                }
+                              },
                             ),
                           ),
                           const Icon(
