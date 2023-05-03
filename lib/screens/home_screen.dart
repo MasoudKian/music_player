@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 100,
+                        height:10,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context, value, _) {
                             return ProgressBar(
                               progress: value.current,
-                              buffered: value.buffrered,
+                              buffered: value.buffered,
                               total: value.total,
                               onSeek: (duration) {},
                               thumbColor: Colors.white,
@@ -171,7 +171,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     return const CircularProgressIndicator();
                                   case ButtonState.playing:
                                     return IconButton(
-                                      onPressed: () {},
+                                      padding: EdgeInsets.zero,
+                                      onPressed: _pageManager.pause,
                                       icon: const Icon(
                                         Icons.pause,
                                         color: Colors.white,
@@ -180,7 +181,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     );
                                   case ButtonState.paused:
                                     return IconButton(
-                                      onPressed: () {},
+                                      padding: EdgeInsets.zero,
+                                      onPressed: _pageManager.play,
                                       icon: const Icon(
                                         Icons.play_arrow,
                                         color: Colors.white,
