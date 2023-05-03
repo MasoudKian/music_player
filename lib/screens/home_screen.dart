@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height:10,
+                        height: 100,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -129,13 +129,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               progress: value.current,
                               buffered: value.buffered,
                               total: value.total,
-                              onSeek: (duration) {},
                               thumbColor: Colors.white,
                               progressBarColor: Colors.red,
                               baseBarColor: Colors.grey,
+                              bufferedBarColor: Colors.white,
                               thumbGlowColor:
                                   Colors.redAccent.withOpacity(0.25),
                               timeLabelTextStyle: const TextStyle(fontSize: 15),
+                              onSeek: _pageManager.seek,
+                              // onSeek: (position) {
+                              //   _pageManager.seek(position);
+                              // },
                             );
                           }),
                       const SizedBox(height: 25),
@@ -168,7 +172,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context, ButtonState value, _) {
                                 switch (value) {
                                   case ButtonState.loading:
-                                    return const CircularProgressIndicator();
+                                    return const CircularProgressIndicator(
+                                      valueColor:
+                                          AlwaysStoppedAnimation(Colors.white),
+                                    );
                                   case ButtonState.playing:
                                     return IconButton(
                                       padding: EdgeInsets.zero,

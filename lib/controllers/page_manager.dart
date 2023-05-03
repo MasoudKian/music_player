@@ -11,7 +11,8 @@ class PageManager {
     _init();
   }
 
-  void play() {
+  void play () async{
+    await _audioPlayer.setUrl(_url);
     _audioPlayer.play();
   }
 
@@ -19,9 +20,12 @@ class PageManager {
     _audioPlayer.pause();
   }
 
+  void seek(position){
+    _audioPlayer.seek(position);
+  }
   void _init() async {
     _audioPlayer = AudioPlayer();
-    await _audioPlayer.setUrl(_url);
+
 
     // Handle Icon Play & Pause & Progress
     _audioPlayer.playerStateStream.listen((playerState) {
@@ -31,21 +35,43 @@ class PageManager {
       if (progressingState == ProcessingState.loading ||
           progressingState == ProcessingState.buffering) {
         buttonNotifier.value = ButtonState.loading;
-      }
-      else if(!playing){
+      } else if (!playing) {
         buttonNotifier.value = ButtonState.paused;
-      }
-      else{
+      } else {
         buttonNotifier.value = ButtonState.playing;
       }
+    });
+    _audioPlayer.positionStream.listen((position) {
+      final oldState = progressNotifier.value;
+      progressNotifier.value = ProgressBarState(
+        current: position,
+        buffered: oldState.buffered,
+        total: oldState.total,
+      );
+    });
+    _audioPlayer.bufferedPositionStream.listen((position) {
+      final oldState = progressNotifier.value;
+      progressNotifier.value = ProgressBarState(
+        current: oldState.current,
+        buffered: position,
+        total: oldState.total,
+      );
+    });
+    _audioPlayer.durationStream.listen((position) {
+      final oldState = progressNotifier.value;
+      progressNotifier.value = ProgressBarState(
+        current: oldState.current,
+        buffered: oldState.buffered,
+        total: position??Duration.zero,
+      );
     });
   }
 
   final progressNotifier = ValueNotifier<ProgressBarState>(
     ProgressBarState(
-      Duration.zero,
-      Duration.zero,
-      Duration.zero,
+      current: Duration.zero,
+      buffered: Duration.zero,
+      total: Duration.zero,
     ),
   );
 
@@ -57,7 +83,8 @@ class ProgressBarState {
   final Duration buffered;
   final Duration total;
 
-  ProgressBarState(this.current, this.buffered, this.total);
+  ProgressBarState(
+      {required this.current, required this.buffered, required this.total});
 }
 
 enum ButtonState { paused, playing, loading }
