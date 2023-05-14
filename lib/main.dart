@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/screens/home_screen.dart';
+import 'package:music_player/screens/music_player_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+   MyApp({Key? key}) : super(key: key);
+
+  AudioPlayer audioPlayer = AudioPlayer();
+  PageController controller = PageController(
+    initialPage: 0,
+  );
+
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MaterialApp(
       theme: ThemeData(fontFamily: 'Rich'),
       debugShowCheckedModeBanner: false,
-      home:  HomeScreen(),
+      home:  Scaffold(
+        body: PageView(
+          controller: controller,
+          scrollDirection: Axis.vertical,
+          children: [
+            const HomeScreen(),
+            MusicPlayerScreen(controller,audioPlayer)
+          ],
+        ),
+      ),
     );
   }
 }
-
