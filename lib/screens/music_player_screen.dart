@@ -8,10 +8,12 @@ import 'package:music_player/constanct/my-text-style.dart';
 import '../controllers/page_manager.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
-  const MusicPlayerScreen(this.controller, this._audioPlayer,{Key? key}) : super(key: key);
+  const MusicPlayerScreen(this.controller, this._audioPlayer, {Key? key})
+      : super(key: key);
 
   final AudioPlayer _audioPlayer;
-  final PageController controller ;
+  final PageController controller;
+
   @override
   State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
 }
@@ -28,8 +30,6 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     _pageManager = PageManager(widget._audioPlayer);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
@@ -38,9 +38,15 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         SizedBox(
           height: size.height,
           width: size.width,
-          child: Image.asset(
-            'assets/images/headdeep.jpg',
-            fit: BoxFit.cover,
+          child: ValueListenableBuilder(
+            valueListenable: _pageManager.currentSongDetailNotifier,
+            builder: (context, AudioMetaData value, child) {
+              String image = value.imageAddress;
+              return Image.asset(
+                image,
+                fit: BoxFit.cover,
+              );
+            },
           ),
         ),
         BackdropFilter(
@@ -59,7 +65,9 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              widget.controller.animateToPage(0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                              widget.controller.animateToPage(0,
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut);
                             },
                             icon: const Icon(
                               Icons.arrow_back,
@@ -94,30 +102,48 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                           ),
                         ],
                       ),
-                      child: const CircleAvatar(
+                      child: CircleAvatar(
                         radius: 200,
                         backgroundColor: Colors.black38,
-                        child: CircleAvatar(
-                          radius: 185,
-                          backgroundImage:
-                              AssetImage('assets/images/headdeep.jpg'),
+                        child: ValueListenableBuilder(
+                          valueListenable:
+                              _pageManager.currentSongDetailNotifier,
+                          builder: (context, AudioMetaData value, child) {
+                            String image = value.imageAddress;
+                            return CircleAvatar(
+                              radius: 185,
+                              backgroundImage: AssetImage(image),
+                            );
+                          },
                         ),
                       ),
                     ),
                     const SizedBox(height: 40),
                     Row(
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text('Deep House',
-                                style: TextStyle(
-                                    fontSize: 30, color: Colors.white)),
-                            SizedBox(height: 10),
-                            Text('Relaxing Work',
-                                style: TextStyle(
-                                    fontSize: 18, color: Colors.white38))
-                          ],
+                        ValueListenableBuilder(
+                          valueListenable:
+                              _pageManager.currentSongDetailNotifier,
+                          builder: (context, AudioMetaData value, child) {
+                            String title = value.title;
+                            String artist = value.artist;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  artist,
+                                  style: const TextStyle(
+                                      fontSize: 30, color: Colors.white),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  title,
+                                  style: const TextStyle(
+                                      fontSize: 18, color: Colors.white38),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                         const Spacer(),
                         const Icon(

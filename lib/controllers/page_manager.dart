@@ -46,6 +46,7 @@ class PageManager {
 
     const prefix = 'assets/images';
 
+
     final song1 = Uri.parse(
         'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/01%20Marrakesh.mp3');
     final song2 = Uri.parse(
@@ -62,36 +63,36 @@ class PageManager {
         AudioSource.uri(
           song1,
           tag: AudioMetaData(
-              title: 'Music 1',
-              artist: 'Deep1',
+              title: 'Deep House 1',
+              artist: 'Ethnic',
               imageAddress: '$prefix/deep1.jpg'),
         ),
         AudioSource.uri(
           song1,
           tag: AudioMetaData(
-              title: 'Music 2',
-              artist: 'Deep2',
+              title: 'Deep House 1',
+              artist: 'Love',
               imageAddress: '$prefix/deep2.jpg'),
         ),
         AudioSource.uri(
           song1,
           tag: AudioMetaData(
-              title: 'Music 3',
-              artist: 'Deep3',
+              title: 'Deep House 3',
+              artist: 'AHABABA',
               imageAddress: '$prefix/deep3.jpg'),
         ),
         AudioSource.uri(
           song1,
           tag: AudioMetaData(
-              title: 'Music 4',
-              artist: 'Deep4',
+              title: 'Deep House 4',
+              artist: 'Besso',
               imageAddress: '$prefix/deep4.jpg'),
         ),
         AudioSource.uri(
           song1,
           tag: AudioMetaData(
               title: 'Music 5',
-              artist: 'Deep5',
+              artist: 'Irea',
               imageAddress: '$prefix/deep5.jpg'),
         ),
       ],
@@ -149,7 +150,25 @@ class PageManager {
     });
   }
 
-  void _listenSequenceState() {}
+  void _listenSequenceState() {
+    _audioPlayer.sequenceStateStream.listen((sequenceState) {
+      if (sequenceState == null) {
+        return;
+      }
+      final currentItem = sequenceState.currentSource;
+      final song = currentItem!.tag as AudioMetaData;
+      currentSongDetailNotifier.value = song;
+
+      //Play List
+      final playList = sequenceState.effectiveSequence;
+      final title = playList.map((song) {
+        final titleSong = song.tag as AudioMetaData;
+        return titleSong.artist;
+        // return titleSong.title;
+      }).toList();
+      playListNotifier.value = title;
+    });
+  }
 
   void play() {
     _audioPlayer.play();

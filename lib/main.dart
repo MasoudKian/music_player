@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           controller: controller,
           scrollDirection: Axis.vertical,
           children: [
-            const HomeScreen(),
+             HomeScreen(audioPlayer),
             MusicPlayerScreen(controller,audioPlayer)
           ],
         ),
