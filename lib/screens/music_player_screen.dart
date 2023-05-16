@@ -177,15 +177,50 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(
-                          Icons.repeat,
-                          color: Colors.white,
-                          size: 35,
+                        ValueListenableBuilder(
+                          valueListenable: _pageManager.repeatStateNotifier,
+                          builder: (context, RepeatState value, child) {
+                            switch (value) {
+                              case RepeatState.off:
+                                return IconButton(
+                                  icon: const Icon(Icons.key_off_sharp, size: 35),
+                                  onPressed: _pageManager.onRepeatPressed,
+                                  color: Colors.white,
+                                  padding: EdgeInsets.zero,
+                                );
+                              case RepeatState.one:
+                                return IconButton(
+                                  icon: const Icon(Icons.repeat_one_rounded,
+                                      size: 35),
+                                  color: Colors.white,
+                                  padding: EdgeInsets.zero,
+                                  onPressed: _pageManager.onRepeatPressed,
+                                );
+                              case RepeatState.all:
+                                return IconButton(
+                                  icon: const Icon(Icons.repeat_rounded,
+                                      size: 35),
+                                  color: Colors.white,
+                                  padding: EdgeInsets.zero,
+                                  onPressed: _pageManager.onRepeatPressed,
+                                );
+                            }
+                          },
                         ),
-                        const Icon(
-                          Icons.skip_previous,
-                          color: Colors.white,
-                          size: 35,
+                        ValueListenableBuilder(
+                          valueListenable: _pageManager.isFirstSongNotifier,
+                          builder: (context, bool value, child) {
+                            return IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Icons.skip_previous_rounded,
+                                size: 35,
+                              ),
+                              color: Colors.white,
+                              onPressed:
+                                  value ? null : _pageManager.onBackPressed,
+                            );
+                          },
                         ),
                         Container(
                           padding: const EdgeInsets.all(20),
@@ -222,7 +257,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                     padding: EdgeInsets.zero,
                                     onPressed: _pageManager.play,
                                     icon: const Icon(
-                                      Icons.play_arrow,
+                                      Icons.play_arrow_rounded,
                                       color: Colors.white,
                                       size: 50,
                                     ),
@@ -231,10 +266,21 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                             },
                           ),
                         ),
-                        const Icon(
-                          Icons.skip_next,
-                          color: Colors.white,
-                          size: 35,
+                        ValueListenableBuilder(
+                          valueListenable: _pageManager.isFirstSongNotifier,
+                          builder: (context, bool value, child) {
+                            return IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Icons.skip_next_rounded,
+                                size: 35,
+                                color: Colors.white,
+                              ),
+                              color: Colors.white,
+                              onPressed:
+                                  value ? null : _pageManager.onNextPressed,
+                            );
+                          },
                         ),
                         const Icon(
                           Icons.volume_down_alt,

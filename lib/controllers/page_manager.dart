@@ -13,13 +13,14 @@ class PageManager {
   );
 
   final buttonNotifier = ValueNotifier(ButtonState.paused);
+
   final currentSongDetailNotifier = ValueNotifier<AudioMetaData>(
       AudioMetaData(title: "", artist: "", imageAddress: ""));
 
-  final playListNotifier = ValueNotifier<List<String>>([]);
+  final playListNotifier = ValueNotifier<List<AudioMetaData>>([]);
   final isFirstSongNotifier = ValueNotifier<bool>(true);
   final isLastSongNotifier = ValueNotifier<bool>(true);
-  final repeatStateNotifier = ValueNotifier<RepeatState>(RepeatState.off);
+  final repeatStateNotifier = RepeatStateNotifier();
 
   late ConcatenatingAudioSource _playlist;
 
@@ -46,17 +47,16 @@ class PageManager {
 
     const prefix = 'assets/images';
 
-
     final song1 = Uri.parse(
-        'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/01%20Marrakesh.mp3');
+        'https://dl.mokhtalefmusic.com/music/1398/02/26/Deep%20House/Jay%20Aliev%20Deep.mp3');
     final song2 = Uri.parse(
-        'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/03%20Kameyama.mp3');
+        'https://avapedia.com/station/24054/masih-to-ke-nisti-pisham-ft-arash-ap/d?nonce=05c8a58693');
     final song3 = Uri.parse(
-        'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/04%20Miramar.mp3');
+        'https://avapedia.com/station/2497/shah-beyt/d?nonce=05c8a58693');
     final song4 = Uri.parse(
-        'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/06%20All%20Rise%20(Radio%20Mix).mp3');
+        'https://avapedia.com/station/24044/khabe-khoob/d?nonce=05c8a58693');
     final song5 = Uri.parse(
-        'https://songsara.net/vip-dl/?filename=dl/2022/10/Ethnic%20Deep%20House%202%20(Playlist)/07%20Go%20Up%20Go%20Up.mp3');
+        'https://avapedia.com/station/24052/aroome-del/d?nonce=05c8a58693');
 
     _playlist = ConcatenatingAudioSource(
       children: [
@@ -68,32 +68,32 @@ class PageManager {
               imageAddress: '$prefix/deep1.jpg'),
         ),
         AudioSource.uri(
-          song1,
+          song2,
           tag: AudioMetaData(
               title: 'Deep House 1',
               artist: 'Love',
-              imageAddress: '$prefix/deep2.jpg'),
+              imageAddress: '$prefix/deep2.jpeg'),
         ),
         AudioSource.uri(
-          song1,
+          song3,
           tag: AudioMetaData(
               title: 'Deep House 3',
               artist: 'AHABABA',
-              imageAddress: '$prefix/deep3.jpg'),
+              imageAddress: '$prefix/deep3.jpeg'),
         ),
         AudioSource.uri(
-          song1,
+          song4,
           tag: AudioMetaData(
               title: 'Deep House 4',
               artist: 'Besso',
-              imageAddress: '$prefix/deep4.jpg'),
+              imageAddress: '$prefix/deep4.jpeg'),
         ),
         AudioSource.uri(
-          song1,
+          song5,
           tag: AudioMetaData(
               title: 'Music 5',
               artist: 'Irea',
-              imageAddress: '$prefix/deep5.jpg'),
+              imageAddress: '$prefix/deep5.jpeg'),
         ),
       ],
     );
@@ -144,6 +144,8 @@ class PageManager {
         buttonNotifier.value = ButtonState.loading;
       } else if (!playing) {
         buttonNotifier.value = ButtonState.paused;
+      } else if (progressingState == ProcessingState.completed) {
+      _audioPlayer.stop();
       } else {
         buttonNotifier.value = ButtonState.playing;
       }
@@ -155,6 +157,8 @@ class PageManager {
       if (sequenceState == null) {
         return;
       }
+
+      // update current song detail
       final currentItem = sequenceState.currentSource;
       final song = currentItem!.tag as AudioMetaData;
       currentSongDetailNotifier.value = song;
@@ -162,11 +166,20 @@ class PageManager {
       //Play List
       final playList = sequenceState.effectiveSequence;
       final title = playList.map((song) {
-        final titleSong = song.tag as AudioMetaData;
-        return titleSong.artist;
+        return song.tag as AudioMetaData;
         // return titleSong.title;
       }).toList();
       playListNotifier.value = title;
+
+      // update next and back button
+      if (playList.isEmpty || currentItem == null) {
+        isFirstSongNotifier.value = true;
+        isLastSongNotifier.value = true;
+      } //
+      else {
+        isFirstSongNotifier.value = playList.first == currentItem;
+        isLastSongNotifier.value = playList.last == currentItem;
+      }
     });
   }
 
@@ -180,6 +193,27 @@ class PageManager {
 
   void seek(position) {
     _audioPlayer.seek(position);
+  }
+
+  void onBackPressed() {
+    _audioPlayer.seekToPrevious();
+  }
+
+  void onNextPressed() {
+    _audioPlayer.seekToNext();
+  }
+
+  void onRepeatPressed() {
+    repeatStateNotifier.nextState();
+    if (repeatStateNotifier.value == RepeatState.off) {
+      _audioPlayer.setLoopMode(LoopMode.off);
+    } //
+    else if (repeatStateNotifier.value == RepeatState.one) {
+      _audioPlayer.setLoopMode(LoopMode.one);
+    } //
+    else {
+      _audioPlayer.setLoopMode(LoopMode.all);
+    }
   }
 }
 
@@ -204,3 +238,14 @@ class ProgressBarState {
 enum ButtonState { paused, playing, loading }
 
 enum RepeatState { one, all, off }
+
+class RepeatStateNotifier extends ValueNotifier<RepeatState> {
+  RepeatStateNotifier() : super(_initialValue);
+
+  static const _initialValue = RepeatState.off;
+
+  void nextState() {
+    var next = (value.index + 1) % RepeatState.values.length;
+    value = RepeatState.values[next];
+  }
+}

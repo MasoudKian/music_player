@@ -23,24 +23,75 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: ValueListenableBuilder(
-            valueListenable: _pageManager.playListNotifier,
-            builder: (context, List<String> value, child) {
-              return ListView.builder(
-                itemCount: value.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(
-                      value[index],
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            height: 60,
+            width: double.infinity,
+            color: Colors.grey,
+            child: const Center(
+              child: Text(
+                'Play List',
+                style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: _pageManager.playListNotifier,
+              builder: (context, List<AudioMetaData> song, child) {
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: song.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(vertical: 1),
+                      child: ListTile(
+                        tileColor: Colors.grey.shade200,
+                        title: Text(song[index].artist),
+                        subtitle: Text(song[index].title),
+                        leading: CircleAvatar(
+                          radius: 45,
+                          backgroundImage: AssetImage(song[index].imageAddress),
+                        ),
+                        onTap: () {},
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          ValueListenableBuilder(
+            valueListenable: _pageManager.currentSongDetailNotifier,
+            builder: (context, AudioMetaData audio, _) {
+              return Container(
+                color: Colors.grey.shade300,
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 45,
+                    backgroundImage: AssetImage(audio.imageAddress),
+                  ),
+                  title: Text(audio.artist),
+                  subtitle: Text(audio.title),
+                  trailing: const Padding(
+                    padding: EdgeInsets.only(right: 20),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.black,
+                      size: 30,
                     ),
-                  );
-                },
+                  ),
+                ),
               );
             },
-          )),
+          ),
+        ],
+      ),
     );
   }
 }
