@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:music_player/controllers/page_manager.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen(this.controller, this._pageManager ,{Key? key}) : super(key: key);
+  const HomeScreen(this.controller, this._pageManager, {Key? key})
+      : super(key: key);
 
   final PageController controller;
-  final  PageManager _pageManager;
-
+  final PageManager _pageManager;
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +72,40 @@ class HomeScreen extends StatelessWidget {
                   ),
                   title: Text(audio.artist),
                   subtitle: Text(audio.title),
-                  trailing: const Padding(
-                    padding: EdgeInsets.only(right: 20),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.black,
-                      size: 30,
-                    ),
+                  trailing: ValueListenableBuilder(
+                    valueListenable: _pageManager.buttonNotifier,
+                    builder: (context, ButtonState value, _) {
+                      switch (value) {
+                        case ButtonState.loading:
+                          return const SizedBox(
+                            width: 30,
+                            height: 30,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation(Colors.black),
+                            ),
+                          );
+                        case ButtonState.playing:
+                          return IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: _pageManager.pause,
+                            icon: const Icon(
+                              Icons.pause_circle_outline_rounded,
+                              color: Colors.black,
+                              size: 40,
+                            ),
+                          );
+                        case ButtonState.paused:
+                          return IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: _pageManager.play,
+                            icon: const Icon(
+                              Icons.play_circle_outline_rounded,
+                              color: Colors.black,
+                              size: 40,
+                            ),
+                          );
+                      }
+                    },
                   ),
                 ),
               );
