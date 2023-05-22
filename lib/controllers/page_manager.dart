@@ -22,6 +22,9 @@ class PageManager {
   final isLastSongNotifier = ValueNotifier<bool>(true);
   final repeatStateNotifier = RepeatStateNotifier();
 
+  // volume
+  final volumeStateNotifier = ValueNotifier<double>(1);
+
   late ConcatenatingAudioSource _playlist;
 
   PageManager(this._audioPlayer) {
@@ -34,7 +37,6 @@ class PageManager {
     _listenChangePositionStream();
     _listenChangeBufferedPositionStream();
     _listenChangeTotalDurationStream();
-
     _listenSequenceState();
   }
 
@@ -97,7 +99,30 @@ class PageManager {
         ),
       ],
     );
-    _audioPlayer.setAudioSource(_playlist);
+
+    if (_audioPlayer.bufferedPosition == Duration.zero) {
+      await _audioPlayer.setAudioSource(_playlist);
+    }//
+
+  }
+
+  void _listenChangePlayerState() {
+    _audioPlayer.playerStateStream.listen((playerState) {
+      final playing = playerState.playing;
+      final processingState = playerState.processingState;
+      if (processingState == ProcessingState.loading ||
+          processingState == ProcessingState.buffering) {
+        buttonNotifier.value = ButtonState.loading;
+      } //
+      else if (!playing) {
+        buttonNotifier.value = ButtonState.paused;
+      } else if (processingState != ProcessingState.completed) {
+        buttonNotifier.value = ButtonState.playing;
+      } //
+      else {
+        _audioPlayer.stop();
+      }
+    });
   }
 
   void _listenChangePositionStream() {
@@ -133,7 +158,7 @@ class PageManager {
     });
   }
 
-  void _listenChangePlayerState() {
+  void _listenSequenceState() {
     // Handle Icon Play & Pause & Progress
     _audioPlayer.playerStateStream.listen((playerState) {
       final playing = playerState.playing;
@@ -145,14 +170,11 @@ class PageManager {
       } else if (!playing) {
         buttonNotifier.value = ButtonState.paused;
       } else if (progressingState == ProcessingState.completed) {
-      _audioPlayer.stop();
+        _audioPlayer.stop();
       } else {
         buttonNotifier.value = ButtonState.playing;
       }
     });
-  }
-
-  void _listenSequenceState() {
     _audioPlayer.sequenceStateStream.listen((sequenceState) {
       if (sequenceState == null) {
         return;
@@ -180,7 +202,26 @@ class PageManager {
         isFirstSongNotifier.value = playList.first == currentItem;
         isLastSongNotifier.value = playList.last == currentItem;
       }
+
+      //update volume button
+      if (_audioPlayer.volume != 0) {
+        volumeStateNotifier.value = 1;
+      } //
+      else {
+        volumeStateNotifier.value = 0;
+      }
     });
+  }
+
+  void onVolumePressed() {
+    if (volumeStateNotifier.value != 0) {
+      _audioPlayer.setVolume(0);
+      volumeStateNotifier.value = 0;
+    } //
+    else {
+      _audioPlayer.setVolume(1);
+      volumeStateNotifier.value = 1;
+    }
   }
 
   void play() {
@@ -193,6 +234,10 @@ class PageManager {
 
   void seek(position) {
     _audioPlayer.seek(position);
+  }
+
+  void playFromPlayList(int index){
+    _audioPlayer.seek(Duration.zero,index: index);
   }
 
   void onBackPressed() {

@@ -1,34 +1,17 @@
 import 'dart:ui';
-
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constanct/my-text-style.dart';
-
 import '../controllers/page_manager.dart';
 
-class MusicPlayerScreen extends StatefulWidget {
-  const MusicPlayerScreen(this.controller, this._audioPlayer, {Key? key})
+class MusicPlayerScreen extends StatelessWidget {
+  MusicPlayerScreen(this.controller, this._pageManager, {Key? key})
       : super(key: key);
 
-  final AudioPlayer _audioPlayer;
   final PageController controller;
-
-  @override
-  State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
-}
-
-class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
-  late PageManager _pageManager;
+  final PageManager _pageManager;
 
   late Size size;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _pageManager = PageManager(widget._audioPlayer);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +48,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              widget.controller.animateToPage(0,
+                              controller.animateToPage(0,
                                   duration: const Duration(milliseconds: 500),
                                   curve: Curves.easeInOut);
                             },
@@ -183,7 +166,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                             switch (value) {
                               case RepeatState.off:
                                 return IconButton(
-                                  icon: const Icon(Icons.key_off_sharp, size: 35),
+                                  icon:
+                                      const Icon(Icons.key_off_sharp, size: 35),
                                   onPressed: _pageManager.onRepeatPressed,
                                   color: Colors.white,
                                   padding: EdgeInsets.zero,
@@ -277,16 +261,33 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 color: Colors.white,
                               ),
                               color: Colors.white,
-                              onPressed:
-                                  value ? null : _pageManager.onNextPressed,
+                              onPressed: _pageManager.onNextPressed,
                             );
                           },
                         ),
-                        const Icon(
-                          Icons.volume_down_alt,
-                          color: Colors.white,
-                          size: 35,
-                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _pageManager.volumeStateNotifier,
+                          builder: (context, double value, child) {
+                            if (value == 0) {
+                              return IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(Icons.volume_off_outlined,
+                                    size: 35),
+                                color: Colors.white,
+                                onPressed: _pageManager.onVolumePressed,
+                              );
+                            } //
+                            else {
+                              return IconButton(
+                                padding: EdgeInsets.zero,
+                                icon:
+                                    const Icon(Icons.volume_down_alt, size: 35),
+                                color: Colors.white,
+                                onPressed: _pageManager.onVolumePressed,
+                              );
+                            }
+                          },
+                        )
                       ],
                     )
                   ],

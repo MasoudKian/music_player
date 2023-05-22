@@ -1,25 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/controllers/page_manager.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen(this._audioPlayer, {Key? key}) : super(key: key);
+class HomeScreen extends StatelessWidget {
+  const HomeScreen(this.controller, this._pageManager ,{Key? key}) : super(key: key);
 
-  final AudioPlayer _audioPlayer;
+  final PageController controller;
+  final  PageManager _pageManager;
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late PageManager _pageManager;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _pageManager = PageManager(widget._audioPlayer);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           radius: 45,
                           backgroundImage: AssetImage(song[index].imageAddress),
                         ),
-                        onTap: () {},
+                        onTap: () {
+                          controller.animateToPage(
+                            1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                          _pageManager.playFromPlayList(index);
+                        },
                       ),
                     );
                   },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:music_player/controllers/page_manager.dart';
 import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/music_player_screen.dart';
 
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
     initialPage: 0,
   );
 
+  PageManager get pageManager => PageManager(audioPlayer);
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +28,8 @@ class MyApp extends StatelessWidget {
           controller: controller,
           scrollDirection: Axis.vertical,
           children: [
-             HomeScreen(audioPlayer),
-            MusicPlayerScreen(controller,audioPlayer)
+             HomeScreen(controller,pageManager),
+            MusicPlayerScreen(controller,pageManager)
           ],
         ),
       ),
