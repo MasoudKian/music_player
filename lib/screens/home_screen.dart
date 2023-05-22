@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:music_player/controllers/page_manager.dart';
 
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: ValueListenableBuilder(
               valueListenable: _pageManager.playListNotifier,
-              builder: (context, List<AudioMetaData> song, child) {
+              builder: (context, List<MediaItem> song, child) {
                 return ListView.builder(
                   physics: const BouncingScrollPhysics(),
                   itemCount: song.length,
@@ -39,12 +40,14 @@ class HomeScreen extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(vertical: 1),
                       child: ListTile(
                         tileColor: Colors.grey.shade200,
-                        title: Text(song[index].artist),
+                        title: Text(song[index].artist ?? ''),
                         subtitle: Text(song[index].title),
-                        leading: CircleAvatar(
-                          radius: 45,
-                          backgroundImage: AssetImage(song[index].imageAddress),
-                        ),
+                        // leading: CircleAvatar(
+                        //   radius: 45,
+                        //   backgroundImage: AssetImage(
+                        //     song[index].imageAddress,
+                        //   ),
+                        // ),
                         onTap: () {
                           controller.animateToPage(
                             1,

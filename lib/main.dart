@@ -3,20 +3,21 @@ import 'package:just_audio/just_audio.dart';
 import 'package:music_player/controllers/page_manager.dart';
 import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/music_player_screen.dart';
+import 'package:music_player/services/service_locator.dart';
 
-void main() {
+void main() async {
+  await setupInitService();
   runApp( MyApp());
 }
 
 class MyApp extends StatelessWidget {
    MyApp({Key? key}) : super(key: key);
 
-  AudioPlayer audioPlayer = AudioPlayer();
   PageController controller = PageController(
     initialPage: 0,
   );
 
-  PageManager get pageManager => PageManager(audioPlayer);
+  PageManager get pageManager => PageManager();
 
   @override
   Widget build(BuildContext context) {
